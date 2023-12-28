@@ -101,6 +101,8 @@ namespace L48_aquarium
             }
         }
 
+        private bool IsCorrectIndex(int index) => (index < _fishes.Count || index >= 0);
+
         private void NextCycle()
         {
             foreach (var fish in _fishes)
@@ -187,11 +189,6 @@ namespace L48_aquarium
                     _fishes.RemoveAt(index);
                 else
                     ShowError();
-        }
-
-        private bool IsCorrectIndex(int index)
-        {
-            return (index < _fishes.Count || index >= 0);
         }
 
         private void Fill()
