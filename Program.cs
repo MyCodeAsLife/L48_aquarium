@@ -30,7 +30,7 @@ namespace L48_aquarium
         private enum Menu
         {
             ShowStatusAllFishes = 1,
-            ShowStatusFish = 2,
+            ShowFishStatus = 2,
             AddNewFish = 3,
             RemoveFish = 4,
             NextCycle = 5,
@@ -58,8 +58,8 @@ namespace L48_aquarium
                             _aquarium.ShowStatusAllFishes();
                             break;
 
-                        case Menu.ShowStatusFish:
-                            _aquarium.ShowStatusFish();
+                        case Menu.ShowFishStatus:
+                            _aquarium.ShowFishStatus();
                             break;
 
                         case Menu.AddNewFish:
@@ -96,7 +96,7 @@ namespace L48_aquarium
         private void ShowMenu()
         {
             Console.WriteLine(new string(_delimeter, _delimeterLenght) + $"\n{(int)Menu.ShowStatusAllFishes} - Проверить состояние всех рыб.\n" +
-                              $"{(int)Menu.ShowStatusFish} - Проверить состояние определенной рыбы.\n{(int)Menu.AddNewFish} - Добавить новую " +
+                              $"{(int)Menu.ShowFishStatus} - Проверить состояние определенной рыбы.\n{(int)Menu.AddNewFish} - Добавить новую " +
                               $"рыбу в аквариум.\n{(int)Menu.RemoveFish} - Удалить рыбу из аквариума.\n{(int)Menu.NextCycle} - Следующий цикл." +
                               $"\n{(int)Menu.Exit} - Выход из игры.\n");
         }
@@ -144,7 +144,7 @@ namespace L48_aquarium
             }
         }
 
-        public void ShowStatusFish()
+        public void ShowFishStatus()
         {
             Console.WriteLine("Введите номер рыбы: ");
 
@@ -153,7 +153,7 @@ namespace L48_aquarium
                 index--;
 
                 if (IsCorrectIndex(index))
-                    CheckStatusFish(_fishes[index]);
+                    ShowStatus(_fishes[index]);
                 else
                     Error.Show();
             }
@@ -166,7 +166,7 @@ namespace L48_aquarium
         public void ShowStatusAllFishes()
         {
             for (int i = 0; i < _fishes.Count; i++)
-                CheckStatusFish(_fishes[i]);
+                ShowStatus(_fishes[i]);
         }
 
         public void GrowUp()
@@ -181,7 +181,7 @@ namespace L48_aquarium
 
             if (_fishes.Count < _capacity)
             {
-                bool checkCreation = false;
+                bool isCreation = false;
                 Console.Write($"Какую из рыб вы хотите добавить в аквариум:");
 
                 foreach (var fishType in _fishCreater.FishList)
@@ -195,12 +195,12 @@ namespace L48_aquarium
                     if (userInput.ToLower() == fishType.ToLower())
                     {
                         _fishes.Add(_fishCreater.Create(fishType));
-                        checkCreation = true;
+                        isCreation = true;
                         break;
                     }
                 }
 
-                if (checkCreation)
+                if (isCreation)
                     Console.WriteLine("Рыба успешно добавлена.");
                 else
                     Error.Show();
@@ -213,7 +213,7 @@ namespace L48_aquarium
 
         private bool IsCorrectIndex(int index) => (index < _fishes.Count && index >= 0);
 
-        private void CheckStatusFish(GlowFish fish)
+        private void ShowStatus(GlowFish fish)
         {
             Console.WriteLine($"Вид: {fish.Type}. Состояние: {fish.Status}. Возраст: {fish.Age}.");
         }
@@ -224,8 +224,8 @@ namespace L48_aquarium
 
             for (int i = 0; i < startFishesCount; i++)
             {
-                int randomFish = RandomGenerator.Generate(_fishCreater.FishList.Count);
-                _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomFish]));
+                int randomIndex = RandomGenerator.Generate(_fishCreater.FishList.Count);
+                _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomIndex]));
             }
         }
     }
