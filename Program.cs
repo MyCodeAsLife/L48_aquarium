@@ -7,26 +7,24 @@ namespace L48_aquarium
     {
         static void Main(string[] args)
         {
-            int aquariumCapacity = 10;
-            Aquarium aquarium = new Aquarium(aquariumCapacity);
+            Room room = new Room();
 
-            aquarium.Run();
+            room.Run();
         }
     }
 
-    class Aquarium
+    class Room
     {
-        private int _capacity;
+        private Aquarium _aquarium;
+
+        private int _aquariumCapacity = 10;
         private int _delimeterLenght = 75;
 
-        private List<GlowFish> _fishes = new List<GlowFish>();
-        private FishCreater _fishCreater = new FishCreater();
         private char _delimeter = '=';
 
-        public Aquarium(int capacity)
+        public Room()
         {
-            _capacity = capacity;
-            Fill();
+            _aquarium = new Aquarium(_aquariumCapacity);
         }
 
         private enum Menu
@@ -57,23 +55,23 @@ namespace L48_aquarium
                     switch ((Menu)number)
                     {
                         case Menu.ShowStatusAllFishes:
-                            ShowStatusAllFishes();
+                            _aquarium.ShowStatusAllFishes();
                             break;
 
                         case Menu.ShowStatusFish:
-                            ShowStatusFish();
+                            _aquarium.ShowStatusFish();
                             break;
 
                         case Menu.AddNewFish:
-                            AddNewFish();
+                            _aquarium.AddNewFish();
                             break;
 
                         case Menu.RemoveFish:
-                            RemoveFish();
+                            _aquarium.RemoveFish();
                             break;
 
                         case Menu.NextCycle:
-                            GrowUp();
+                            _aquarium.GrowUp();
                             break;
 
                         case Menu.Exit:
@@ -81,13 +79,13 @@ namespace L48_aquarium
                             continue;
 
                         default:
-                            ShowError();
+                            Error.Show();
                             break;
                     }
                 }
                 else
                 {
-                    ShowError();
+                    Error.Show();
                 }
 
                 Console.WriteLine("Для продолжения нажмите любую кнопку...");
@@ -103,32 +101,50 @@ namespace L48_aquarium
                               $"\n{(int)Menu.Exit} - Выход из игры.\n");
         }
 
-        private bool IsCorrectIndex(int index) => (index < _fishes.Count && index >= 0);
-
-        private void GrowUp()
-        {
-            foreach (var fish in _fishes)
-                fish.GrowUp();
-        }
-
         private void ShowLive()
         {
             Console.Clear();
             Console.WriteLine(new string(_delimeter, _delimeterLenght));
 
-            for (int i = 0; i < _fishes.Count; i++)
+            for (int i = 0; i < _aquarium.Fishes.Count; i++)
             {
-                Console.Write("Рыба " + (i + 1) + " - Вид " + _fishes[i].Type + ".\t");
-                _fishes[i].ShowLive();
+                Console.Write("Рыба " + (i + 1) + " - Вид " + _aquarium.Fishes[i].Type + ".\t");
+                _aquarium.Fishes[i].ShowLive();
+            }
+        }
+    }
+
+    class Aquarium
+    {
+        private int _capacity;
+
+        private List<GlowFish> _fishes = new List<GlowFish>();
+        private FishCreater _fishCreater = new FishCreater();
+
+        public Aquarium(int capacity)
+        {
+            _capacity = capacity;
+            Fill();
+        }
+
+        public IReadOnlyList<GlowFish> Fishes => _fishes;
+
+        public void RemoveFish()
+        {
+            Console.WriteLine("Введите номер удаляемой рыбы: ");
+
+            if (int.TryParse(Console.ReadLine(), out int index))
+            {
+                index--;
+
+                if (IsCorrectIndex(index))
+                    _fishes.Remove(_fishes[index]);
+                else
+                    Error.Show();
             }
         }
 
-        private void CheckStatusFish(GlowFish fish)
-        {
-            Console.WriteLine($"Вид: {fish.Type}. Состояние: {fish.Status}. Возраст: {fish.Age}.");
-        }
-
-        private void ShowStatusFish()
+        public void ShowStatusFish()
         {
             Console.WriteLine("Введите номер рыбы: ");
 
@@ -139,21 +155,27 @@ namespace L48_aquarium
                 if (IsCorrectIndex(index))
                     CheckStatusFish(_fishes[index]);
                 else
-                    ShowError();
+                    Error.Show();
             }
             else
             {
-                ShowError();
+                Error.Show();
             }
         }
 
-        private void ShowStatusAllFishes()
+        public void ShowStatusAllFishes()
         {
             for (int i = 0; i < _fishes.Count; i++)
                 CheckStatusFish(_fishes[i]);
         }
 
-        private void AddNewFish()
+        public void GrowUp()
+        {
+            foreach (var fish in _fishes)
+                fish.GrowUp();
+        }
+
+        public void AddNewFish()
         {
             Console.Clear();
 
@@ -181,7 +203,7 @@ namespace L48_aquarium
                 if (checkCreation)
                     Console.WriteLine("Рыба успешно добавлена.");
                 else
-                    ShowError();
+                    Error.Show();
             }
             else
             {
@@ -189,47 +211,27 @@ namespace L48_aquarium
             }
         }
 
-        private void RemoveFish()
+        private bool IsCorrectIndex(int index) => (index < _fishes.Count && index >= 0);
+
+        private void CheckStatusFish(GlowFish fish)
         {
-            Console.WriteLine("Введите номер удаляемой рыбы: ");
-
-            if (int.TryParse(Console.ReadLine(), out int index))
-            {
-                index--;
-
-                if (IsCorrectIndex(index))
-                    _fishes.Remove(_fishes[index]);
-                else
-                    ShowError();
-            }
+            Console.WriteLine($"Вид: {fish.Type}. Состояние: {fish.Status}. Возраст: {fish.Age}.");
         }
 
         private void Fill()
         {
-            int startFishesCount = RandomGenerator.GetRandomNumber(_capacity);
+            int startFishesCount = RandomGenerator.Generate(_capacity);
 
             for (int i = 0; i < startFishesCount; i++)
             {
-                int randomFish = RandomGenerator.GetRandomNumber(_fishCreater.FishList.Count);
+                int randomFish = RandomGenerator.Generate(_fishCreater.FishList.Count);
                 _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomFish]));
             }
-        }
-
-        private void ShowError()
-        {
-            Console.WriteLine("Введено некорректное значение.");
         }
     }
 
     class GlowFish
     {
-        private const string SwimBehaviorHealthy = "активно";
-        private const string SwimBehaviorMalaise = "вяло";
-        private const string SwimBehaviorDisease = "странно";
-        private const string GlowBehaviorHealthy = "яркое";
-        private const string GlowBehaviorMalaise = "мерцающее";
-        private const string GlowBehaviorDisease = "тусклое";
-
         private int _maxChance;
         private int _chanceDeathFromAge;
         private int _chanceDeathFromStatus;
@@ -248,8 +250,15 @@ namespace L48_aquarium
         public HealthStatus Status { get; private set; }
         public int Age { get; private set; }
 
-        public virtual void ShowLive()
+        public void ShowLive()
         {
+            const string SwimBehaviorHealthy = "активно";
+            const string SwimBehaviorMalaise = "вяло";
+            const string SwimBehaviorDisease = "странно";
+            const string GlowBehaviorHealthy = "яркое";
+            const string GlowBehaviorMalaise = "мерцающее";
+            const string GlowBehaviorDisease = "тусклое";
+
             if (Status == HealthStatus.Dead)
             {
                 Console.WriteLine("Рыбка умерла от старости или болезни.");
@@ -280,20 +289,20 @@ namespace L48_aquarium
         {
             Age++;
             _chanceDeathFromAge += Age;
-            Status = (HealthStatus)RandomGenerator.GetRandomNumber((int)HealthStatus.Healthy, (int)HealthStatus.Disease + 1);
+            Status = (HealthStatus)RandomGenerator.Generate((int)HealthStatus.Healthy, (int)HealthStatus.Disease + 1);
             _chanceDeathFromStatus = (int)Status;
             int chanceDead = _chanceDeathFromStatus * _chanceDeathFromAge;
 
-            if (RandomGenerator.GetRandomNumber(_maxChance) <= chanceDead)
+            if (RandomGenerator.Generate(_maxChance) <= chanceDead)
                 Status = HealthStatus.Dead;
         }
 
-        protected void Swim(string swimBehavior)
+        private void Swim(string swimBehavior)
         {
             Console.Write($"Она плавает {swimBehavior} и ");
         }
 
-        protected void Glow(string glowBehavior)
+        private void Glow(string glowBehavior)
         {
             Console.WriteLine($"ее свечение {glowBehavior}.");
         }
@@ -306,16 +315,24 @@ namespace L48_aquarium
 
         public IReadOnlyList<string> FishList => _fishList;
 
-        public GlowFish Create(string fishType) => new GlowFish(fishType, HealthStatus.Healthy, RandomGenerator.GetRandomNumber(_maxFishAge));
+        public GlowFish Create(string fishType) => new GlowFish(fishType, HealthStatus.Healthy, RandomGenerator.Generate(_maxFishAge));
     }
 
     static class RandomGenerator
     {
         private static Random s_random = new Random();
 
-        public static int GetRandomNumber(int minValue, int maxValue) => s_random.Next(minValue, maxValue);
+        public static int Generate(int minValue, int maxValue) => s_random.Next(minValue, maxValue);
 
-        public static int GetRandomNumber(int maxValue) => s_random.Next(maxValue);
+        public static int Generate(int maxValue) => s_random.Next(maxValue);
+    }
+
+    static class Error
+    {
+        public static void Show()
+        {
+            Console.WriteLine("Введено некорректное значение.");
+        }
     }
 
     enum HealthStatus
