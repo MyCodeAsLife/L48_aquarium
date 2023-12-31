@@ -17,7 +17,13 @@ namespace L48_aquarium
     {
         private Aquarium _aquarium = new Aquarium();
         private int _delimeterLenght = 75;
-        private char _delimeter = '=';
+        private char _delimeterSymbol = '=';
+        private string _delimeter;
+
+        public Room()
+        {
+            _delimeter = new string(_delimeterSymbol, _delimeterLenght);
+        }
 
         private enum Menu
         {
@@ -35,7 +41,7 @@ namespace L48_aquarium
 
             while (isOpen)
             {
-                ShowLive();
+                ShowFishStatus();
                 ShowMenu();
 
                 Console.Write("Выберите пункт: ");
@@ -87,16 +93,16 @@ namespace L48_aquarium
 
         private void ShowMenu()
         {
-            Console.WriteLine(new string(_delimeter, _delimeterLenght) + $"\n{(int)Menu.ShowStatusAllFishes} - Проверить состояние всех рыб.\n" +
+            Console.WriteLine(_delimeter + $"\n{(int)Menu.ShowStatusAllFishes} - Проверить состояние всех рыб.\n" +
                               $"{(int)Menu.ShowFishStatus} - Проверить состояние определенной рыбы.\n{(int)Menu.AddNewFish} - Добавить новую " +
                               $"рыбу в аквариум.\n{(int)Menu.RemoveFish} - Удалить рыбу из аквариума.\n{(int)Menu.NextCycle} - Следующий цикл." +
                               $"\n{(int)Menu.Exit} - Выход из игры.\n");
         }
 
-        private void ShowLive()
+        private void ShowFishStatus()
         {
             Console.Clear();
-            Console.WriteLine(new string(_delimeter, _delimeterLenght));
+            Console.WriteLine(_delimeter);
 
             for (int i = 0; i < _aquarium.Fishes.Count; i++)
             {
@@ -274,14 +280,17 @@ namespace L48_aquarium
 
         public void GrowUp()
         {
-            Age++;
-            _chanceDeathFromAge += Age;
-            Status = (HealthStatus)RandomGenerator.Generate((int)HealthStatus.Healthy, (int)HealthStatus.Disease + 1);
-            _chanceDeathFromStatus = (int)Status;
-            int chanceDead = _chanceDeathFromStatus * _chanceDeathFromAge;
+            if (Status != HealthStatus.Dead)
+            {
+                Age++;
+                _chanceDeathFromAge += Age;
+                Status = (HealthStatus)RandomGenerator.Generate((int)HealthStatus.Healthy, (int)HealthStatus.Disease + 1);
+                _chanceDeathFromStatus = (int)Status;
+                int chanceDead = _chanceDeathFromStatus * _chanceDeathFromAge;
 
-            if (RandomGenerator.Generate(_maxChance) <= chanceDead)
-                Status = HealthStatus.Dead;
+                if (RandomGenerator.Generate(_maxChance) <= chanceDead)
+                    Status = HealthStatus.Dead;
+            }
         }
 
         private void Swim(string swimBehavior)
