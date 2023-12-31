@@ -116,7 +116,13 @@ namespace L48_aquarium
         public Aquarium()
         {
             _capacity = 10;
-            Fill();
+            int startFishesCount = RandomGenerator.Generate(_capacity);
+
+            for (int i = 0; i < startFishesCount; i++)
+            {
+                int randomIndex = RandomGenerator.Generate(_fishCreater.FishList.Count);
+                _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomIndex]));
+            }
         }
 
         public IReadOnlyList<GlowFish> Fishes => _fishes;
@@ -208,17 +214,6 @@ namespace L48_aquarium
         private void ShowStatus(GlowFish fish)
         {
             Console.WriteLine($"Вид: {fish.Type}. Состояние: {fish.Status}. Возраст: {fish.Age}.");
-        }
-
-        private void Fill()
-        {
-            int startFishesCount = RandomGenerator.Generate(_capacity);
-
-            for (int i = 0; i < startFishesCount; i++)
-            {
-                int randomIndex = RandomGenerator.Generate(_fishCreater.FishList.Count);
-                _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomIndex]));
-            }
         }
     }
 
