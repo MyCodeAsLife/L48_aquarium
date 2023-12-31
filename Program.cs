@@ -15,17 +15,9 @@ namespace L48_aquarium
 
     class Room
     {
-        private Aquarium _aquarium;
-
-        private int _aquariumCapacity = 10;
+        private Aquarium _aquarium = new Aquarium();
         private int _delimeterLenght = 75;
-
         private char _delimeter = '=';
-
-        public Room()
-        {
-            _aquarium = new Aquarium(_aquariumCapacity);
-        }
 
         private enum Menu
         {
@@ -121,9 +113,9 @@ namespace L48_aquarium
         private List<GlowFish> _fishes = new List<GlowFish>();
         private FishCreater _fishCreater = new FishCreater();
 
-        public Aquarium(int capacity)
+        public Aquarium()
         {
-            _capacity = capacity;
+            _capacity = 10;
             Fill();
         }
 
