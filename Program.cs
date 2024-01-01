@@ -107,7 +107,7 @@ namespace L48_aquarium
             for (int i = 0; i < _aquarium.Fishes.Count; i++)
             {
                 Console.Write("Рыба " + (i + 1) + " - Вид " + _aquarium.Fishes[i].Type + ".\t");
-                _aquarium.Fishes[i].ShowLive();
+                _aquarium.Fishes[i].ShowVitalStatus();
             }
         }
     }
@@ -126,8 +126,8 @@ namespace L48_aquarium
 
             for (int i = 0; i < startFishesCount; i++)
             {
-                int randomIndex = RandomGenerator.Generate(_fishCreater.FishList.Count);
-                _fishes.Add(_fishCreater.Create(_fishCreater.FishList[randomIndex]));
+                int randomIndex = RandomGenerator.Generate(_fishCreater.FishesList.Count);
+                _fishes.Add(_fishCreater.Create(_fishCreater.FishesList[randomIndex]));
             }
         }
 
@@ -188,13 +188,13 @@ namespace L48_aquarium
                 bool isCreation = false;
                 Console.Write($"Какую из рыб вы хотите добавить в аквариум:");
 
-                foreach (var fishType in _fishCreater.FishList)
+                foreach (var fishType in _fishCreater.FishesList)
                     Console.Write($"\t{fishType}");
 
                 Console.Write("\nНапишите тип рыбы: ");
                 string userInput = Console.ReadLine();
 
-                foreach (var fishType in _fishCreater.FishList)
+                foreach (var fishType in _fishCreater.FishesList)
                 {
                     if (userInput.ToLower() == fishType.ToLower())
                     {
@@ -243,7 +243,7 @@ namespace L48_aquarium
         public HealthStatus Status { get; private set; }
         public int Age { get; private set; }
 
-        public void ShowLive()
+        public void ShowVitalStatus()
         {
             const string SwimBehaviorHealthy = "активно";
             const string SwimBehaviorMalaise = "вяло";
@@ -252,29 +252,23 @@ namespace L48_aquarium
             const string GlowBehaviorMalaise = "мерцающее";
             const string GlowBehaviorDisease = "тусклое";
 
-            if (Status == HealthStatus.Dead)
+            switch (Status)
             {
-                Console.WriteLine("Рыбка умерла от старости или болезни.");
-            }
-            else
-            {
-                Console.Write($"Ей испольнилось: {Age}.\t");
+                case HealthStatus.Healthy:
+                    Console.WriteLine($"Она плавает {SwimBehaviorHealthy} и ее свечение {GlowBehaviorHealthy}.");
+                    break;
 
-                if (Status == HealthStatus.Healthy)
-                {
-                    Swim(SwimBehaviorHealthy);
-                    Glow(GlowBehaviorHealthy);
-                }
-                else if (Status == HealthStatus.Malaise)
-                {
-                    Swim(SwimBehaviorMalaise);
-                    Glow(GlowBehaviorMalaise);
-                }
-                else
-                {
-                    Swim(SwimBehaviorDisease);
-                    Glow(GlowBehaviorDisease);
-                }
+                case HealthStatus.Malaise:
+                    Console.WriteLine($"Она плавает {SwimBehaviorMalaise} и ее свечение {GlowBehaviorMalaise}.");
+                    break;
+
+                case HealthStatus.Disease:
+                    Console.WriteLine($"Она плавает {SwimBehaviorDisease} и ее свечение {GlowBehaviorDisease}.");
+                    break;
+
+                default:
+                    Console.WriteLine("Рыбка умерла от старости или болезни.");
+                    break;
             }
         }
 
@@ -292,24 +286,14 @@ namespace L48_aquarium
                     Status = HealthStatus.Dead;
             }
         }
-
-        private void Swim(string swimBehavior)
-        {
-            Console.Write($"Она плавает {swimBehavior} и ");
-        }
-
-        private void Glow(string glowBehavior)
-        {
-            Console.WriteLine($"ее свечение {glowBehavior}.");
-        }
     }
 
     class FishCreater
     {
         private int _maxFishAge = 6;
-        private List<string> _fishList = new List<string>() { "Тетра", "Данио", "Барб" };
+        private List<string> _fishesList = new List<string>() { "Тетра", "Данио", "Барб" };
 
-        public IReadOnlyList<string> FishList => _fishList;
+        public IReadOnlyList<string> FishesList => _fishesList;
 
         public GlowFish Create(string fishType) => new GlowFish(fishType, HealthStatus.Healthy, RandomGenerator.Generate(_maxFishAge));
     }
